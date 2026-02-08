@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks - Task Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <h1>📋 Task Manager</h1>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="tasks.html">My Tasks</a>
+                <span class="user-info" id="userInfo">Loading...</span>
+                <button onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header with Filters -->
+        <div class="tasks-header">
+            <h2>My Tasks</h2>
+            <div class="filter-section">
+                <select id="statusFilter" onchange="filterTasks()">
+                    <option value="all">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+
+                <select id="priorityFilter" onchange="filterTasks()">
+                    <option value="all">All Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+
+                <select id="categoryFilter" onchange="filterTasks()">
+                    <option value="all">All Categories</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Study">Study</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertMessage"></div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            Loading your tasks...
+        </div>
+
+        <!-- Tasks Grid -->
+        <div id="tasksContainer" class="tasks-grid hidden">
+            <!-- Tasks will be loaded here dynamically -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state hidden">
+            <h3>No tasks found</h3>
+            <p>Start by creating your first task from the dashboard!</p>
+            <a href="dashboard.html" class="btn btn-primary btn-small">Go to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Task</h3>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+
+            <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
+
+                <div class="form-group">
+                    <label for="editTitle">Task Title *</label>
+                    <input 
+                        type="text" 
+                        id="editTitle" 
+                        name="title" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="editDescription">Description</label>
+                    <textarea 
+                        id="editDescription" 
+                        name="description"
+                    ></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPriority">Priority</label>
+                        <select id="editPriority" name="priority">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editStatus">Status</label>
+                        <select id="editStatus" name="status">
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCategory">Category</label>
+                        <select id="editCategory" name="category">
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Study">Study</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">Update Task</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/tasks.js"></script>
+</body>
+</html>
