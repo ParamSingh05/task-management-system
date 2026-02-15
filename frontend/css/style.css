@@ -1,7 +1,4 @@
-/* ========================================
-   GLOBAL STYLES
-   ======================================== */
-
+/* Global Styles */
 * {
     margin: 0;
     padding: 0;
@@ -21,10 +18,7 @@ body {
     padding: 20px;
 }
 
-/* ========================================
-   NAVIGATION BAR
-   ======================================== */
-
+/* Navigation */
 .navbar {
     background-color: rgba(255, 255, 255, 0.95);
     padding: 15px 0;
@@ -73,10 +67,7 @@ body {
     font-weight: 600;
 }
 
-/* ========================================
-   AUTH PAGES (Login & Register)
-   ======================================== */
-
+/* Auth Pages */
 .auth-container {
     display: flex;
     justify-content: center;
@@ -107,6 +98,7 @@ body {
     margin-bottom: 30px;
 }
 
+/* Forms */
 .form-group {
     margin-bottom: 20px;
 }
@@ -127,6 +119,7 @@ body {
     border-radius: 8px;
     font-size: 15px;
     transition: border-color 0.3s;
+    font-family: inherit;
 }
 
 .form-group input:focus,
@@ -141,10 +134,13 @@ body {
     min-height: 100px;
 }
 
-/* ========================================
-   BUTTONS
-   ======================================== */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
 
+/* Buttons */
 .btn {
     width: 100%;
     padding: 12px;
@@ -228,10 +224,7 @@ body {
     text-decoration: underline;
 }
 
-/* ========================================
-   ALERTS & MESSAGES
-   ======================================== */
-
+/* Alerts */
 .alert {
     padding: 12px 20px;
     border-radius: 8px;
@@ -251,16 +244,7 @@ body {
     border: 1px solid #f5c6cb;
 }
 
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-/* ========================================
-   DASHBOARD
-   ======================================== */
-
+/* Dashboard */
 .dashboard-header {
     background: white;
     padding: 30px;
@@ -320,10 +304,7 @@ body {
     color: #28a745;
 }
 
-/* ========================================
-   TASK FORM
-   ======================================== */
-
+/* Task Form Card */
 .task-form-card {
     background: white;
     padding: 30px;
@@ -337,16 +318,7 @@ body {
     margin-bottom: 20px;
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-/* ========================================
-   TASKS PAGE
-   ======================================== */
-
+/* Tasks Page */
 .tasks-header {
     background: white;
     padding: 25px;
@@ -356,6 +328,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .filter-section {
@@ -371,10 +345,7 @@ body {
     font-size: 14px;
 }
 
-/* ========================================
-   TASK CARDS
-   ======================================== */
-
+/* Task Cards */
 .tasks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -408,18 +379,11 @@ body {
     border-left-color: #28a745;
 }
 
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-}
-
 .task-title {
     font-size: 18px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .task-badges {
@@ -488,10 +452,7 @@ body {
     gap: 10px;
 }
 
-/* ========================================
-   MODAL
-   ======================================== */
-
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -547,10 +508,7 @@ body {
     color: #333;
 }
 
-/* ========================================
-   LOADING & EMPTY STATES
-   ======================================== */
-
+/* Loading & Empty States */
 .loading {
     text-align: center;
     padding: 40px;
@@ -577,10 +535,16 @@ body {
     margin-bottom: 20px;
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
 
+.text-center {
+    text-align: center;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .navbar .container {
         flex-direction: column;
@@ -598,27 +562,16 @@ body {
     .tasks-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
     }
 
     .filter-section {
         width: 100%;
     }
 
-    .filter-section select {
-        flex: 1;
-    }
-
     .form-row {
         grid-template-columns: 1fr;
     }
 
-    .auth-box {
-        padding: 30px 20px;
-    }
-}
-
-@media (max-width: 480px) {
     .task-actions {
         flex-direction: column;
     }
@@ -626,24 +579,4 @@ body {
     .task-actions button {
         width: 100%;
     }
-}
-
-/* ========================================
-   UTILITY CLASSES
-   ======================================== */
-
-.hidden {
-    display: none !important;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-20 {
-    margin-top: 20px;
-}
-
-.mb-20 {
-    margin-bottom: 20px;
 }

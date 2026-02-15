@@ -1,9 +1,7 @@
 const bcrypt = require('bcrypt');
 const { pool } = require('../config/database');
 
-// ========================================
-// REGISTER NEW USER
-// ========================================
+// Register new user
 const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -16,7 +14,7 @@ const register = async (req, res) => {
             });
         }
 
-        // Check if email already exists
+        // Check if email exists
         const [existingUsers] = await pool.query(
             'SELECT id FROM users WHERE email = ?',
             [email]
@@ -32,7 +30,7 @@ const register = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert new user
+        // Insert user
         const [result] = await pool.query(
             'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
             [name, email, hashedPassword]
@@ -53,9 +51,7 @@ const register = async (req, res) => {
     }
 };
 
-// ========================================
-// LOGIN USER (NOW WITH TOKEN)
-// ========================================
+// Login user
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -68,7 +64,7 @@ const login = async (req, res) => {
             });
         }
 
-        // Find user by email
+        // Find user
         const [users] = await pool.query(
             'SELECT id, name, email, password FROM users WHERE email = ?',
             [email]
@@ -83,7 +79,7 @@ const login = async (req, res) => {
 
         const user = users[0];
 
-        // Compare password
+        // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
@@ -93,19 +89,18 @@ const login = async (req, res) => {
             });
         }
 
-        // Create simple token (user ID encoded)
+        // Create token
         const token = Buffer.from(JSON.stringify({
             userId: user.id,
-            email: user.email,
+            userName: user.name,
+            userEmail: user.email,
             timestamp: Date.now()
         })).toString('base64');
 
-        // Also store in session as backup
+        // Set session
         req.session.userId = user.id;
         req.session.userName = user.name;
         req.session.userEmail = user.email;
-
-        console.log('✅ User logged in:', user.email);
 
         res.json({
             success: true,
@@ -127,9 +122,7 @@ const login = async (req, res) => {
     }
 };
 
-// ========================================
-// LOGOUT USER
-// ========================================
+// Logout user
 const logout = (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -142,11 +135,8 @@ const logout = (req, res) => {
     });
 };
 
-// ========================================
-// GET CURRENT USER (UPDATED FOR TOKEN)
-// ========================================
+// Get current user
 const getCurrentUser = (req, res) => {
-    // Check session first
     if (req.session.userId) {
         return res.json({
             success: true,
@@ -156,24 +146,6 @@ const getCurrentUser = (req, res) => {
                 email: req.session.userEmail
             }
         });
-    }
-
-    // Check token from header
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        try {
-            const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
-            return res.json({
-                success: true,
-                user: {
-                    id: decoded.userId,
-                    email: decoded.email
-                }
-            });
-        } catch (error) {
-            console.error('Token decode error:', error);
-        }
     }
 
     res.status(401).json({

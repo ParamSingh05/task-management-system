@@ -1,9 +1,5 @@
-// API Base URL
-const API_URL = 'https://task-management-system-ypyr.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 
-// ========================================
-// HELPER: Get Authorization Headers
-// ========================================
 function getAuthHeaders() {
     const token = localStorage.getItem('authToken');
     return {
@@ -12,25 +8,17 @@ function getAuthHeaders() {
     };
 }
 
-// ========================================
-// CHECK AUTHENTICATION
-// ========================================
 function checkAuthentication() {
     const token = localStorage.getItem('authToken');
     const userName = localStorage.getItem('userName');
     
     if (!token || !userName) {
-        // Not logged in, redirect
         window.location.href = 'index.html';
         return false;
     }
-    
     return true;
 }
 
-// ========================================
-// LOAD USER INFO
-// ========================================
 function loadUserInfo() {
     if (!checkAuthentication()) return;
     
@@ -39,9 +27,6 @@ function loadUserInfo() {
     document.getElementById('welcomeMessage').textContent = `Welcome back, ${userName}! 👋`;
 }
 
-// ========================================
-// LOAD TASK STATISTICS
-// ========================================
 async function loadTaskStats() {
     try {
         const response = await fetch(`${API_URL}/tasks/stats`, {
@@ -49,31 +34,22 @@ async function loadTaskStats() {
             credentials: 'include'
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch statistics');
-        }
+        if (!response.ok) throw new Error('Failed to fetch statistics');
 
         const data = await response.json();
         
         if (data.success) {
             const stats = data.stats;
-
-            // Update total
             document.getElementById('totalTasks').textContent = stats.total;
 
-            // Initialize counters
-            let pending = 0;
-            let inProgress = 0;
-            let completed = 0;
+            let pending = 0, inProgress = 0, completed = 0;
 
-            // Count by status
             stats.byStatus.forEach(item => {
                 if (item.status === 'Pending') pending = item.count;
                 if (item.status === 'In Progress') inProgress = item.count;
                 if (item.status === 'Completed') completed = item.count;
             });
 
-            // Update cards
             document.getElementById('pendingTasks').textContent = pending;
             document.getElementById('inProgressTasks').textContent = inProgress;
             document.getElementById('completedTasks').textContent = completed;
@@ -84,9 +60,6 @@ async function loadTaskStats() {
     }
 }
 
-// ========================================
-// QUICK ADD TASK
-// ========================================
 const quickTaskForm = document.getElementById('quickTaskForm');
 if (quickTaskForm) {
     quickTaskForm.addEventListener('submit', async (e) => {
@@ -108,13 +81,7 @@ if (quickTaskForm) {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 credentials: 'include',
-                body: JSON.stringify({
-                    title,
-                    description,
-                    priority,
-                    status,
-                    category
-                })
+                body: JSON.stringify({ title, description, priority, status, category })
             });
 
             const data = await response.json();
@@ -133,27 +100,16 @@ if (quickTaskForm) {
     });
 }
 
-// ========================================
-// SHOW ALERT
-// ========================================
 function showAlert(message, type = 'success') {
     const alertDiv = document.getElementById('alertMessage');
     if (alertDiv) {
-        alertDiv.innerHTML = `
-            <div class="alert alert-${type}">
-                ${message}
-            </div>
-        `;
-
+        alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
         setTimeout(() => {
             alertDiv.innerHTML = '';
         }, 5000);
     }
 }
 
-// ========================================
-// LOGOUT
-// ========================================
 async function handleLogout() {
     try {
         await fetch(`${API_URL}/auth/logout`, {
@@ -163,17 +119,11 @@ async function handleLogout() {
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userId');
+        localStorage.clear();
         window.location.href = 'index.html';
     }
 }
 
-// ========================================
-// INITIALIZE
-// ========================================
 document.addEventListener('DOMContentLoaded', () => {
     loadUserInfo();
     loadTaskStats();

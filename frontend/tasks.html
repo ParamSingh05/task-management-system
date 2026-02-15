@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <h1>📋 Task Manager</h1>
@@ -84,26 +84,18 @@
 
                 <div class="form-group">
                     <label for="editTitle">Task Title *</label>
-                    <input 
-                        type="text" 
-                        id="editTitle" 
-                        name="title" 
-                        required
-                    >
+                    <input type="text" id="editTitle" required>
                 </div>
 
                 <div class="form-group">
                     <label for="editDescription">Description</label>
-                    <textarea 
-                        id="editDescription" 
-                        name="description"
-                    ></textarea>
+                    <textarea id="editDescription"></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="editPriority">Priority</label>
-                        <select id="editPriority" name="priority">
+                        <select id="editPriority">
                             <option value="Low">Low</option>
                             <option value="Medium">Medium</option>
                             <option value="High">High</option>
@@ -112,7 +104,7 @@
 
                     <div class="form-group">
                         <label for="editStatus">Status</label>
-                        <select id="editStatus" name="status">
+                        <select id="editStatus">
                             <option value="Pending">Pending</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Completed">Completed</option>
@@ -121,7 +113,7 @@
 
                     <div class="form-group">
                         <label for="editCategory">Category</label>
-                        <select id="editCategory" name="category">
+                        <select id="editCategory">
                             <option value="Personal">Personal</option>
                             <option value="Work">Work</option>
                             <option value="Study">Study</option>

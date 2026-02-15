@@ -1,11 +1,9 @@
 const { pool } = require('../config/database');
 
-// ========================================
-// GET ALL TASKS for logged-in user
-// ========================================
+// Get all tasks for user
 const getAllTasks = async (req, res) => {
     try {
-        const userId = req.userId; // Changed from req.session.userId
+        const userId = req.userId;
 
         const [tasks] = await pool.query(
             'SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC',
@@ -27,9 +25,7 @@ const getAllTasks = async (req, res) => {
     }
 };
 
-// ========================================
-// GET SINGLE TASK by ID
-// ========================================
+// Get single task
 const getTaskById = async (req, res) => {
     try {
         const userId = req.userId;
@@ -61,15 +57,12 @@ const getTaskById = async (req, res) => {
     }
 };
 
-// ========================================
-// CREATE NEW TASK
-// ========================================
+// Create new task
 const createTask = async (req, res) => {
     try {
         const userId = req.userId;
         const { title, description, priority, status, category } = req.body;
 
-        // Validation
         if (!title) {
             return res.status(400).json({
                 success: false,
@@ -78,16 +71,8 @@ const createTask = async (req, res) => {
         }
 
         const [result] = await pool.query(
-            `INSERT INTO tasks (user_id, title, description, priority, status, category) 
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-                userId,
-                title,
-                description || '',
-                priority || 'Medium',
-                status || 'Pending',
-                category || 'Personal'
-            ]
+            'INSERT INTO tasks (user_id, title, description, priority, status, category) VALUES (?, ?, ?, ?, ?, ?)',
+            [userId, title, description || '', priority || 'Medium', status || 'Pending', category || 'Personal']
         );
 
         res.status(201).json({
@@ -105,16 +90,14 @@ const createTask = async (req, res) => {
     }
 };
 
-// ========================================
-// UPDATE TASK
-// ========================================
+// Update task
 const updateTask = async (req, res) => {
     try {
         const userId = req.userId;
         const taskId = req.params.id;
         const { title, description, priority, status, category } = req.body;
 
-        // Check if task exists and belongs to user
+        // Check if task exists
         const [existingTasks] = await pool.query(
             'SELECT id FROM tasks WHERE id = ? AND user_id = ?',
             [taskId, userId]
@@ -129,9 +112,7 @@ const updateTask = async (req, res) => {
 
         // Update task
         await pool.query(
-            `UPDATE tasks 
-             SET title = ?, description = ?, priority = ?, status = ?, category = ?
-             WHERE id = ? AND user_id = ?`,
+            'UPDATE tasks SET title = ?, description = ?, priority = ?, status = ?, category = ? WHERE id = ? AND user_id = ?',
             [title, description, priority, status, category, taskId, userId]
         );
 
@@ -149,9 +130,7 @@ const updateTask = async (req, res) => {
     }
 };
 
-// ========================================
-// DELETE TASK
-// ========================================
+// Delete task
 const deleteTask = async (req, res) => {
     try {
         const userId = req.userId;
@@ -183,9 +162,7 @@ const deleteTask = async (req, res) => {
     }
 };
 
-// ========================================
-// GET TASK STATISTICS
-// ========================================
+// Get task statistics
 const getTaskStats = async (req, res) => {
     try {
         const userId = req.userId;
@@ -198,19 +175,13 @@ const getTaskStats = async (req, res) => {
 
         // Tasks by status
         const [statusResult] = await pool.query(
-            `SELECT status, COUNT(*) as count 
-             FROM tasks 
-             WHERE user_id = ? 
-             GROUP BY status`,
+            'SELECT status, COUNT(*) as count FROM tasks WHERE user_id = ? GROUP BY status',
             [userId]
         );
 
         // Tasks by priority
         const [priorityResult] = await pool.query(
-            `SELECT priority, COUNT(*) as count 
-             FROM tasks 
-             WHERE user_id = ? 
-             GROUP BY priority`,
+            'SELECT priority, COUNT(*) as count FROM tasks WHERE user_id = ? GROUP BY priority',
             [userId]
         );
 
