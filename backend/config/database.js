@@ -1,21 +1,22 @@
-// Import pg with promise support
-const { Pool } = require('pg');
+const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Create connection pool
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// Test database connection
 async function testConnection() {
     try {
-        const client = await pool.connect();
+        const connection = await pool.getConnection();
         console.log('✅ Database connected successfully');
-        const result = await client.query('SELECT NOW()');
-        console.log('📅 Database time:', result.rows[0].now);
-        client.release();
+        connection.release();
     } catch (error) {
         console.error('❌ Database connection failed:', error.message);
         process.exit(1);
