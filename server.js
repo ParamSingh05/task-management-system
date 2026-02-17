@@ -54,33 +54,19 @@ app.get('*', (req, res) => {
 
 // ─── Start Server ─────────────────────────────
 async function startServer() {
-    let retries = 5;
+    try {
+        console.log('🔄 Initializing database...');
+        await initializeDatabase();
 
-    while (retries > 0) {
-        try {
-            await initializeDatabase();
-
-            app.listen(PORT, () => {
-                console.log('========================================');
-                console.log(`🚀 Server running on port ${PORT}`);
-                console.log(`📍 URL: http://localhost:${PORT}`);
-                console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-                console.log('========================================');
-            });
-            break;
-        } catch (error) {
-            retries--;
-            console.error(`❌ Startup failed. Retries left: ${retries}`);
-            console.error('Error:', error.message);
-
-            if (retries === 0) {
-                console.error('❌ Could not start server after multiple attempts');
-                process.exit(1);
-            }
-
-            console.log('⏳ Waiting 5 seconds before retry...');
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        }
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log('========================================');
+            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+            console.log('========================================');
+        });
+    } catch (error) {
+        console.error('❌ Failed to start server:', error.message);
+        process.exit(1);
     }
 }
 
