@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 function getAuthHeaders() {
     const token = localStorage.getItem('authToken');
@@ -10,21 +10,28 @@ function getAuthHeaders() {
 
 function checkAuthentication() {
     const token = localStorage.getItem('authToken');
-    const userName = localStorage.getItem('userName');
-    
-    if (!token || !userName) {
-        window.location.href = 'index.html';
+    if (!token) {
+        window.location.href = '/';
         return false;
     }
     return true;
 }
 
+function showAlert(message, type = 'success') {
+    const alertDiv = document.getElementById('alertMessage');
+    if (alertDiv) {
+        alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        setTimeout(() => alertDiv.innerHTML = '', 5000);
+    }
+}
+
 function loadUserInfo() {
     if (!checkAuthentication()) return;
-    
     const userName = localStorage.getItem('userName');
-    document.getElementById('userInfo').textContent = userName;
-    document.getElementById('welcomeMessage').textContent = `Welcome back, ${userName}! 👋`;
+    const userInfoEl = document.getElementById('userInfo');
+    const welcomeEl = document.getElementById('welcomeMessage');
+    if (userInfoEl) userInfoEl.textContent = userName;
+    if (welcomeEl) welcomeEl.textContent = `Welcome back, ${userName}! 👋`;
 }
 
 async function loadTaskStats() {
@@ -34,17 +41,19 @@ async function loadTaskStats() {
             credentials: 'include'
         });
 
-        if (!response.ok) throw new Error('Failed to fetch statistics');
+        if (response.status === 401) {
+            localStorage.clear();
+            window.location.href = '/';
+            return;
+        }
 
         const data = await response.json();
-        
+
         if (data.success) {
-            const stats = data.stats;
-            document.getElementById('totalTasks').textContent = stats.total;
+            document.getElementById('totalTasks').textContent = data.stats.total;
 
             let pending = 0, inProgress = 0, completed = 0;
-
-            stats.byStatus.forEach(item => {
+            data.stats.byStatus.forEach(item => {
                 if (item.status === 'Pending') pending = item.count;
                 if (item.status === 'In Progress') inProgress = item.count;
                 if (item.status === 'Completed') completed = item.count;
@@ -55,8 +64,8 @@ async function loadTaskStats() {
             document.getElementById('completedTasks').textContent = completed;
         }
     } catch (error) {
-        console.error('Error loading statistics:', error);
-        showAlert('Failed to load task statistics', 'error');
+        console.error('Stats error:', error);
+        showAlert('Failed to load statistics', 'error');
     }
 }
 
@@ -91,37 +100,13 @@ if (quickTaskForm) {
                 quickTaskForm.reset();
                 loadTaskStats();
             } else {
-                showAlert(data.message, 'error');
+                showAlert(data.message || 'Failed to create task', 'error');
             }
         } catch (error) {
-            console.error('Error creating task:', error);
+            console.error('Create task error:', error);
             showAlert('Failed to create task', 'error');
         }
     });
-}
-
-function showAlert(message, type = 'success') {
-    const alertDiv = document.getElementById('alertMessage');
-    if (alertDiv) {
-        alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-        setTimeout(() => {
-            alertDiv.innerHTML = '';
-        }, 5000);
-    }
-}
-
-async function handleLogout() {
-    try {
-        await fetch(`${API_URL}/auth/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-    } catch (error) {
-        console.error('Logout error:', error);
-    } finally {
-        localStorage.clear();
-        window.location.href = 'index.html';
-    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

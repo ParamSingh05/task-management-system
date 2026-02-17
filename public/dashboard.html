@@ -4,31 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Task Management System</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <h1>📋 Task Manager</h1>
             <div class="nav-links">
-                <a href="dashboard.html">Dashboard</a>
-                <a href="tasks.html">My Tasks</a>
+                <a href="/dashboard.html">Dashboard</a>
+                <a href="/tasks.html">My Tasks</a>
                 <span class="user-info" id="userInfo">Loading...</span>
                 <button onclick="handleLogout()">Logout</button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container">
-        <!-- Welcome Section -->
         <div class="dashboard-header">
             <h2 id="welcomeMessage">Welcome!</h2>
             <p>Here's an overview of your tasks</p>
         </div>
 
-        <!-- Statistics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Total Tasks</h3>
@@ -48,43 +44,37 @@
             </div>
         </div>
 
-        <!-- Quick Add Task Form -->
         <div class="task-form-card">
             <h3>➕ Quick Add Task</h3>
             <div id="alertMessage"></div>
-            
             <form id="quickTaskForm">
                 <div class="form-group">
-                    <label for="title">Task Title *</label>
+                    <label>Task Title *</label>
                     <input type="text" id="title" placeholder="What needs to be done?" required>
                 </div>
-
                 <div class="form-group">
-                    <label for="description">Description</label>
+                    <label>Description</label>
                     <textarea id="description" placeholder="Add more details..."></textarea>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="priority">Priority</label>
+                        <label>Priority</label>
                         <select id="priority">
                             <option value="Low">Low</option>
                             <option value="Medium" selected>Medium</option>
                             <option value="High">High</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="status">Status</label>
+                        <label>Status</label>
                         <select id="status">
                             <option value="Pending" selected>Pending</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="category">Category</label>
+                        <label>Category</label>
                         <select id="category">
                             <option value="Personal" selected>Personal</option>
                             <option value="Work">Work</option>
@@ -93,17 +83,15 @@
                         </select>
                     </div>
                 </div>
-
                 <button type="submit" class="btn btn-primary">Add Task</button>
             </form>
         </div>
 
-        <!-- View All Tasks Button -->
         <div class="text-center">
-            <a href="tasks.html" class="btn btn-secondary btn-small">View All Tasks</a>
+            <a href="/tasks.html" class="btn btn-secondary btn-small">View All Tasks →</a>
         </div>
     </div>
 
-    <script src="js/dashboard.js"></script>
+    <script src="/js/dashboard.js"></script>
 </body>
 </html>

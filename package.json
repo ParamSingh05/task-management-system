@@ -1,17 +1,13 @@
 {
-  "name": "task-management-backend",
+  "name": "task-management-system",
   "version": "1.0.0",
-  "description": "Task Management System Backend with MySQL",
+  "description": "Task Management System with MySQL",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [
-    "task-management",
-    "mysql",
-    "express"
-  ],
+  "keywords": ["task-management", "mysql", "express"],
   "author": "Param Singh",
   "license": "ISC",
   "dependencies": {
@@ -23,6 +19,6 @@
     "mysql2": "^3.6.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.0.2"
   }
 }

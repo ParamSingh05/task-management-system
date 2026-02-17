@@ -1,13 +1,11 @@
-const API_URL = 'http://localhost:5000/api';
+// API URL - empty string means same server
+const API_URL = '/api';
 
-// Helper Functions
 function showAlert(message, type = 'success') {
     const alertDiv = document.getElementById('alertMessage');
     if (alertDiv) {
         alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-        setTimeout(() => {
-            alertDiv.innerHTML = '';
-        }, 5000);
+        setTimeout(() => alertDiv.innerHTML = '', 5000);
     }
 }
 
@@ -15,22 +13,16 @@ function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Check if already logged in
-async function checkAuth() {
+// Check if already logged in - redirect to dashboard
+const path = window.location.pathname;
+if (path === '/' || path.includes('index.html') || path.includes('register.html')) {
     const token = localStorage.getItem('authToken');
-    if (token) {
-        window.location.href = 'dashboard.html';
+    if (token && !path.includes('register.html')) {
+        window.location.href = '/dashboard.html';
     }
 }
 
-// Run on login/register pages
-if (window.location.pathname.includes('index.html') || 
-    window.location.pathname.includes('register.html') ||
-    window.location.pathname.endsWith('/')) {
-    checkAuth();
-}
-
-// Login Form Handler
+// Login Handler
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -40,7 +32,7 @@ if (loginForm) {
         const password = document.getElementById('password').value;
 
         if (!validateEmail(email)) {
-            showAlert('Please enter a valid email address', 'error');
+            showAlert('Please enter a valid email', 'error');
             return;
         }
 
@@ -64,22 +56,19 @@ if (loginForm) {
                 localStorage.setItem('userName', data.user.name);
                 localStorage.setItem('userEmail', data.user.email);
                 localStorage.setItem('userId', data.user.id);
-
                 showAlert('Login successful! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 500);
+                setTimeout(() => window.location.href = '/dashboard.html', 800);
             } else {
                 showAlert(data.message || 'Login failed', 'error');
             }
         } catch (error) {
             console.error('Login error:', error);
-            showAlert('Connection error. Is the server running?', 'error');
+            showAlert('Connection error. Please try again.', 'error');
         }
     });
 }
 
-// Register Form Handler
+// Register Handler
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
@@ -96,7 +85,7 @@ if (registerForm) {
         }
 
         if (!validateEmail(email)) {
-            showAlert('Please enter a valid email address', 'error');
+            showAlert('Please enter a valid email', 'error');
             return;
         }
 
@@ -121,20 +110,18 @@ if (registerForm) {
 
             if (data.success) {
                 showAlert('Registration successful! Redirecting to login...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
+                setTimeout(() => window.location.href = '/', 2000);
             } else {
-                showAlert(data.message, 'error');
+                showAlert(data.message || 'Registration failed', 'error');
             }
         } catch (error) {
-            console.error('Registration error:', error);
+            console.error('Register error:', error);
             showAlert('Connection error. Please try again.', 'error');
         }
     });
 }
 
-// Logout Function
+// Logout Function (global)
 async function handleLogout() {
     try {
         await fetch(`${API_URL}/auth/logout`, {
@@ -144,10 +131,7 @@ async function handleLogout() {
     } catch (error) {
         console.error('Logout error:', error);
     } finally {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userId');
-        window.location.href = 'index.html';
+        localStorage.clear();
+        window.location.href = '/';
     }
 }

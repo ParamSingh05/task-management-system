@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 let allTasks = [];
 
 function getAuthHeaders() {
@@ -12,16 +12,25 @@ function getAuthHeaders() {
 function checkAuthentication() {
     const token = localStorage.getItem('authToken');
     if (!token) {
-        window.location.href = 'index.html';
+        window.location.href = '/';
         return false;
     }
     return true;
 }
 
+function showAlert(message, type = 'success') {
+    const alertDiv = document.getElementById('alertMessage');
+    if (alertDiv) {
+        alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        setTimeout(() => alertDiv.innerHTML = '', 5000);
+    }
+}
+
 function loadUserInfo() {
     if (!checkAuthentication()) return;
     const userName = localStorage.getItem('userName');
-    document.getElementById('userInfo').textContent = userName;
+    const el = document.getElementById('userInfo');
+    if (el) el.textContent = userName;
 }
 
 async function loadTasks() {
@@ -35,14 +44,17 @@ async function loadTasks() {
             credentials: 'include'
         });
 
-        if (!response.ok) throw new Error('Failed to fetch tasks');
+        if (response.status === 401) {
+            localStorage.clear();
+            window.location.href = '/';
+            return;
+        }
 
         const data = await response.json();
+        document.getElementById('loadingState').classList.add('hidden');
 
         if (data.success) {
             allTasks = data.tasks;
-            document.getElementById('loadingState').classList.add('hidden');
-
             if (allTasks.length === 0) {
                 document.getElementById('emptyState').classList.remove('hidden');
             } else {
@@ -50,7 +62,7 @@ async function loadTasks() {
             }
         }
     } catch (error) {
-        console.error('Error loading tasks:', error);
+        console.error('Load tasks error:', error);
         document.getElementById('loadingState').classList.add('hidden');
         showAlert('Failed to load tasks', 'error');
     }
@@ -58,20 +70,19 @@ async function loadTasks() {
 
 function displayTasks(tasks) {
     const container = document.getElementById('tasksContainer');
-    container.classList.remove('hidden');
-    container.innerHTML = '';
 
     if (tasks.length === 0) {
-        document.getElementById('emptyState').classList.remove('hidden');
         container.classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
         return;
     }
 
     document.getElementById('emptyState').classList.add('hidden');
+    container.classList.remove('hidden');
+    container.innerHTML = '';
 
     tasks.forEach(task => {
-        const card = createTaskCard(task);
-        container.appendChild(card);
+        container.appendChild(createTaskCard(task));
     });
 }
 
@@ -79,10 +90,8 @@ function createTaskCard(task) {
     const card = document.createElement('div');
     card.className = `task-card priority-${task.priority.toLowerCase()}`;
 
-    const createdDate = new Date(task.created_at).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+    const date = new Date(task.created_at).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric'
     });
 
     const statusClass = task.status.toLowerCase().replace(' ', '-');
@@ -95,7 +104,7 @@ function createTaskCard(task) {
             <span class="badge badge-category">${task.category}</span>
         </div>
         ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
-        <div class="task-date">Created on ${createdDate}</div>
+        <div class="task-date">📅 ${date}</div>
         <div class="task-actions">
             <button class="btn btn-warning btn-small" onclick="openEditModal(${task.id})">✏️ Edit</button>
             <button class="btn btn-danger btn-small" onclick="deleteTask(${task.id})">🗑️ Delete</button>
@@ -112,21 +121,14 @@ function escapeHtml(text) {
 }
 
 function filterTasks() {
-    const statusFilter = document.getElementById('statusFilter').value;
-    const priorityFilter = document.getElementById('priorityFilter').value;
-    const categoryFilter = document.getElementById('categoryFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const priority = document.getElementById('priorityFilter').value;
+    const category = document.getElementById('categoryFilter').value;
 
     let filtered = allTasks;
-
-    if (statusFilter !== 'all') {
-        filtered = filtered.filter(t => t.status === statusFilter);
-    }
-    if (priorityFilter !== 'all') {
-        filtered = filtered.filter(t => t.priority === priorityFilter);
-    }
-    if (categoryFilter !== 'all') {
-        filtered = filtered.filter(t => t.category === categoryFilter);
-    }
+    if (status !== 'all') filtered = filtered.filter(t => t.status === status);
+    if (priority !== 'all') filtered = filtered.filter(t => t.priority === priority);
+    if (category !== 'all') filtered = filtered.filter(t => t.category === category);
 
     displayTasks(filtered);
 }
@@ -150,9 +152,7 @@ function closeEditModal() {
 }
 
 document.getElementById('editModal').addEventListener('click', (e) => {
-    if (e.target.id === 'editModal') {
-        closeEditModal();
-    }
+    if (e.target.id === 'editModal') closeEditModal();
 });
 
 const editTaskForm = document.getElementById('editTaskForm');
@@ -168,7 +168,7 @@ if (editTaskForm) {
         const category = document.getElementById('editCategory').value;
 
         if (!title) {
-            showAlert('Task title is required', 'error');
+            showAlert('Title is required', 'error');
             return;
         }
 
@@ -183,14 +183,14 @@ if (editTaskForm) {
             const data = await response.json();
 
             if (data.success) {
-                showAlert('Task updated successfully! ✅', 'success');
+                showAlert('Task updated! ✅', 'success');
                 closeEditModal();
                 loadTasks();
             } else {
-                showAlert(data.message, 'error');
+                showAlert(data.message || 'Update failed', 'error');
             }
         } catch (error) {
-            console.error('Error updating task:', error);
+            console.error('Update error:', error);
             showAlert('Failed to update task', 'error');
         }
     });
@@ -198,9 +198,7 @@ if (editTaskForm) {
 
 async function deleteTask(taskId) {
     const task = allTasks.find(t => t.id === taskId);
-    if (!task) return;
-
-    if (!confirm(`Are you sure you want to delete "${task.title}"?`)) return;
+    if (!confirm(`Delete "${task?.title}"?`)) return;
 
     try {
         const response = await fetch(`${API_URL}/tasks/${taskId}`, {
@@ -212,24 +210,14 @@ async function deleteTask(taskId) {
         const data = await response.json();
 
         if (data.success) {
-            showAlert('Task deleted successfully! 🗑️', 'success');
+            showAlert('Task deleted! 🗑️', 'success');
             loadTasks();
         } else {
-            showAlert(data.message, 'error');
+            showAlert(data.message || 'Delete failed', 'error');
         }
     } catch (error) {
-        console.error('Error deleting task:', error);
+        console.error('Delete error:', error);
         showAlert('Failed to delete task', 'error');
-    }
-}
-
-function showAlert(message, type = 'success') {
-    const alertDiv = document.getElementById('alertMessage');
-    if (alertDiv) {
-        alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-        setTimeout(() => {
-            alertDiv.innerHTML = '';
-        }, 5000);
     }
 }
 
@@ -239,11 +227,11 @@ async function handleLogout() {
             method: 'POST',
             credentials: 'include'
         });
-    } catch (error) {
-        console.error('Logout error:', error);
+    } catch (e) {
+        console.error(e);
     } finally {
         localStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = '/';
     }
 }
 

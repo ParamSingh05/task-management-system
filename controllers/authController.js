@@ -1,12 +1,10 @@
 const bcrypt = require('bcrypt');
 const { pool } = require('../config/database');
 
-// Register new user
 const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Validation
         if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
@@ -14,13 +12,20 @@ const register = async (req, res) => {
             });
         }
 
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
+            });
+        }
+
         // Check if email exists
-        const [existingUsers] = await pool.query(
+        const [existing] = await pool.query(
             'SELECT id FROM users WHERE email = ?',
             [email]
         );
 
-        if (existingUsers.length > 0) {
+        if (existing.length > 0) {
             return res.status(400).json({
                 success: false,
                 message: 'Email already registered'
@@ -43,7 +48,7 @@ const register = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Register error:', error);
         res.status(500).json({
             success: false,
             message: 'Server error during registration'
@@ -51,12 +56,10 @@ const register = async (req, res) => {
     }
 };
 
-// Login user
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validation
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -80,16 +83,15 @@ const login = async (req, res) => {
         const user = users[0];
 
         // Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
             });
         }
 
-        // Create token
+        // Generate token
         const token = Buffer.from(JSON.stringify({
             userId: user.id,
             userName: user.name,
@@ -122,12 +124,9 @@ const login = async (req, res) => {
     }
 };
 
-// Logout user
 const logout = (req, res) => {
     req.session.destroy((err) => {
-        if (err) {
-            console.error('Logout error:', err);
-        }
+        if (err) console.error('Logout error:', err);
         res.json({
             success: true,
             message: 'Logout successful'
@@ -135,22 +134,14 @@ const logout = (req, res) => {
     });
 };
 
-// Get current user
 const getCurrentUser = (req, res) => {
-    if (req.session.userId) {
-        return res.json({
-            success: true,
-            user: {
-                id: req.session.userId,
-                name: req.session.userName,
-                email: req.session.userEmail
-            }
-        });
-    }
-
-    res.status(401).json({
-        success: false,
-        message: 'Not logged in'
+    res.json({
+        success: true,
+        user: {
+            id: req.userId,
+            name: req.userName,
+            email: req.userEmail
+        }
     });
 };
 
